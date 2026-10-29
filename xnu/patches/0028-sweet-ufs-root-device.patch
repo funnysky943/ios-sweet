@@ -41,7 +41,7 @@ diff --git a/bsd/dev/sweet_ufs.c b/bsd/dev/sweet_ufs.c
 new file mode 100644
 --- /dev/null
 +++ b/bsd/dev/sweet_ufs.c
-@@ -0,0 +1,540 @@
+@@ -0,0 +1,541 @@
 +/*
 + * SWEET internal UFS root device (read-only).
 + *
