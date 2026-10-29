@@ -1,19 +1,23 @@
-bsd/conf/files
-  @@ -104,6 +104,7 @@
+diff --git a/bsd/conf/files b/bsd/conf/files
+index d1c8f1e..a3b2c1d 100644
+--- a/bsd/conf/files
++++ b/bsd/conf/files
+@@ -104,6 +104,7 @@
  bsd/dev/random/randomdev.c		standard
-
+ 
  bsd/dev/memdev.c			standard
 +bsd/dev/sweet_ufs.c			standard
  bsd/dev/mem.c				standard
  bsd/dev/munge.c 			optional config_requires_u32_munging
  bsd/dev/unix_startup.c			standard
-  +1 -0
-
-iokit/bsddev/IOKitBSDInit.cpp
-  @@ -766,6 +766,24 @@
+diff --git a/iokit/bsddev/IOKitBSDInit.cpp b/iokit/bsddev/IOKitBSDInit.cpp
+index f2e3d4c..b5a6f7e 100644
+--- a/iokit/bsddev/IOKitBSDInit.cpp
++++ b/iokit/bsddev/IOKitBSDInit.cpp
+@@ -766,6 +766,24 @@
  		}
  	}
-
+ 
 +#if defined(ARM64_BOARD_CONFIG_SWEET)
 +//
 +//	SWEET: root on a GPT partition of the internal UFS (bsd/dev/sweet_ufs.c)
@@ -35,10 +39,12 @@ iokit/bsddev/IOKitBSDInit.cpp
   //
   //	Now check if we are trying to root on a memory device
   //
-  +18 -0
-
-bsd/dev/sweet_ufs.c
-  @@ -0,0 +1,536 @@
+diff --git a/bsd/dev/sweet_ufs.c b/bsd/dev/sweet_ufs.c
+new file mode 100644
+index 0000000..c8d9e1f
+--- /dev/null
++++ b/bsd/dev/sweet_ufs.c
+@@ -0,0 +1,536 @@
 +/*
 + * SWEET internal UFS root device (read-only).
 + *
@@ -208,7 +214,7 @@ bsd/dev/sweet_ufs.c
 +	while (ufs_rd(REG_UTRLDBR) & 1) {
 +		if (mach_absolute_time() > deadline) {
 +			ufs_wr(REG_UTRLCLR, ~1u);
-+			printf("SWEET UFS: command 0x%02x timed out\n", cdb[0]);
++			printf("SWEET UFS: command 0x%%02x timed out\n", cdb[0]);
 +			return ETIMEDOUT;
 +		}
 +		delay(1);
@@ -224,7 +230,7 @@ bsd/dev/sweet_ufs.c
 +
 +	uint32_t ocs = utrd->dw2 & 0xff;
 +	if (ocs || ucd->resp[0] != 0x21 || ucd->resp[6] || ucd->resp[7]) {
-+		printf("SWEET UFS: command 0x%02x failed: ocs 0x%x upiu 0x%x response 0x%x status 0x%x\n",
++		printf("SWEET UFS: command 0x%%02x failed: ocs 0x%%x upiu 0x%%x response 0x%%x status 0x%%x\n",
 +		    cdb[0], ocs, ucd->resp[0], ucd->resp[6], ucd->resp[7]);
 +		return EIO;
 +	}
@@ -256,7 +262,7 @@ bsd/dev/sweet_ufs.c
 +		return error;
 +	}
 +	if (memcmp(b, "EFI PART", 8) != 0) {
-+		printf("SWEET UFS: LUN %u has no GPT\n", su.lun);
++		printf("SWEET UFS: LUN %%u has no GPT\n", su.lun);
 +		return ENXIO;
 +	}
 +	uint64_t entry_lba;
@@ -265,7 +271,7 @@ bsd/dev/sweet_ufs.c
 +	memcpy(&nent, b + 80, 4);
 +	memcpy(&esz, b + 84, 4);
 +	if (esz != 128 || nent == 0 || nent * esz > BOUNCE_SIZE) {
-+		printf("SWEET UFS: unsupported GPT entries %u x %u\n", nent, esz);
++		printf("SWEET UFS: unsupported GPT entries %%u x %%u\n", nent, esz);
 +		return ENXIO;
 +	}
 +	/* GPT header entry_lba is in 512-byte units; convert to UFS_BLOCK (4096 bytes). */
@@ -300,7 +306,7 @@ bsd/dev/sweet_ufs.c
 +		su.nblocks = (last - first + 1) * 512 / UFS_BLOCK;
 +		return 0;
 +	}
-+	printf("SWEET UFS: no GPT partition named \"%s\"\n", want);
++	printf("SWEET UFS: no GPT partition named "\"%s\"\n", want);
 +	return ENOENT;
 +}
 +
@@ -309,7 +315,7 @@ bsd/dev/sweet_ufs.c
 +{
 +	uint32_t hce = ufs_rd(REG_HCE), hcs = ufs_rd(REG_HCS);
 +	if (!(hce & 1) || !(hcs & HCS_DP) || !(hcs & HCS_UTRLRDY)) {
-+		printf("SWEET UFS: host not ready (hce 0x%x hcs 0x%x)\n", hce, hcs);
++		printf("SWEET UFS: host not ready (hce 0x%%x hcs 0x%%x)\n", hce, hcs);
 +		return ENXIO;
 +	}
 +	if (ufs_rd(REG_UTRLDBR)) {
@@ -558,7 +564,7 @@ bsd/dev/sweet_ufs.c
 +	devfs_make_node(su.bdev, DEVFS_BLOCK, UID_ROOT, GID_OPERATOR, 0640, "ufsroot0");
 +	devfs_make_node(makedev(su.cmajor, 0), DEVFS_CHAR, UID_ROOT, GID_OPERATOR, 0640, "rufsroot0");
 +	su.ready = true;
-+	printf("SWEET UFS: \"%s\" on LUN %u: first block 0x%llx, %llu MiB, read-only\n",
++	printf("SWEET UFS: "\"%s\" on LUN %%u: first block 0x%%llx, %%llu MiB, read-write\n",
 +	    want, su.lun, su.first_block, su.nblocks * UFS_BLOCK >> 20);
 +	return 0;
 +}
