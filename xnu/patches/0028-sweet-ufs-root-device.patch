@@ -3,7 +3,7 @@ diff --git a/bsd/conf/files b/bsd/conf/files
 +++ b/bsd/conf/files
 @@ -104,6 +104,7 @@
  bsd/dev/random/randomdev.c		standard
- 
+
  bsd/dev/memdev.c			standard
 +bsd/dev/sweet_ufs.c			standard
  bsd/dev/mem.c				standard
@@ -15,7 +15,7 @@ diff --git a/iokit/bsddev/IOKitBSDInit.cpp b/iokit/bsddev/IOKitBSDInit.cpp
 @@ -766,6 +766,24 @@
  		}
  	}
- 
+
 +#if defined(ARM64_BOARD_CONFIG_SWEET)
 +//
 +//	SWEET: root on a GPT partition of the internal UFS (bsd/dev/sweet_ufs.c)
@@ -34,9 +34,9 @@ diff --git a/iokit/bsddev/IOKitBSDInit.cpp b/iokit/bsddev/IOKitBSDInit.cpp
 +	}
 +#endif
 +
- //
- //	Now check if we are trying to root on a memory device
- //
+  //
+  //	Now check if we are trying to root on a memory device
+  //
 diff --git a/bsd/dev/sweet_ufs.c b/bsd/dev/sweet_ufs.c
 new file mode 100644
 --- /dev/null
@@ -254,7 +254,7 @@ new file mode 100644
 +{
 +	const uint8_t *b = (const uint8_t *)(su.dma + DMA_BOUNCE);
 +	/* GPT header is at LBA 1 (512-byte units); convert to UFS_BLOCK (4096 bytes). */
-	int error = ufs_read_blocks(1 * 512 / UFS_BLOCK, 1);
++	int error = ufs_read_blocks(1 * 512 / UFS_BLOCK, 1);
 +	if (error) {
 +		return error;
 +	}
@@ -272,7 +272,7 @@ new file mode 100644
 +		return ENXIO;
 +	}
 +	/* GPT header entry_lba is in 512-byte units; convert to UFS_BLOCK (4096 bytes). */
-	error = ufs_read_blocks(entry_lba * 512 / UFS_BLOCK, (nent * esz + UFS_BLOCK - 1) / UFS_BLOCK);
++	error = ufs_read_blocks(entry_lba * 512 / UFS_BLOCK, (nent * esz + UFS_BLOCK - 1) / UFS_BLOCK);
 +	if (error) {
 +		return error;
 +	}
@@ -297,10 +297,10 @@ new file mode 100644
 +		if (last < first) {
 +			return ENXIO;
 +		}
-		/* GPT partition entries use 512-byte logical blocks.
-		 * Convert to device logical block size (UFS_BLOCK, 4096 bytes). */
-		su.first_block = first * 512 / UFS_BLOCK;
-		su.nblocks = (last - first + 1) * 512 / UFS_BLOCK;
++		/* GPT partition entries use 512-byte logical blocks.
++		 * Convert to device logical block size (UFS_BLOCK, 4096 bytes). */
++		su.first_block = first * 512 / UFS_BLOCK;
++		su.nblocks = (last - first + 1) * 512 / UFS_BLOCK;
 +		return 0;
 +	}
 +	printf("SWEET UFS: no GPT partition named \"%s\"\n", want);
