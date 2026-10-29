@@ -1,7 +1,5 @@
-diff --git a/bsd/conf/files b/bsd/conf/files
---- a/bsd/conf/files
-+++ b/bsd/conf/files
-@@ -104,6 +104,7 @@
+bsd/conf/files
+  @@ -104,6 +104,7 @@
  bsd/dev/random/randomdev.c		standard
 
  bsd/dev/memdev.c			standard
@@ -9,10 +7,10 @@ diff --git a/bsd/conf/files b/bsd/conf/files
  bsd/dev/mem.c				standard
  bsd/dev/munge.c 			optional config_requires_u32_munging
  bsd/dev/unix_startup.c			standard
-diff --git a/iokit/bsddev/IOKitBSDInit.cpp b/iokit/bsddev/IOKitBSDInit.cpp
---- a/iokit/bsddev/IOKitBSDInit.cpp
-+++ b/iokit/bsddev/IOKitBSDInit.cpp
-@@ -766,6 +766,24 @@
+  +1 -0
+
+iokit/bsddev/IOKitBSDInit.cpp
+  @@ -766,6 +766,24 @@
  		}
  	}
 
@@ -37,11 +35,10 @@ diff --git a/iokit/bsddev/IOKitBSDInit.cpp b/iokit/bsddev/IOKitBSDInit.cpp
   //
   //	Now check if we are trying to root on a memory device
   //
-diff --git a/bsd/dev/sweet_ufs.c b/bsd/dev/sweet_ufs.c
-new file mode 100644
---- /dev/null
-+++ b/bsd/dev/sweet_ufs.c
-@@ -0,0 +1,536 @@
+  +18 -0
+
+bsd/dev/sweet_ufs.c
+  @@ -0,0 +1,536 @@
 +/*
 + * SWEET internal UFS root device (read-only).
 + *
@@ -582,3 +579,4 @@ new file mode 100644
 +	return 0;
 +}
 +#endif /* ARM64_BOARD_CONFIG_SWEET */
+  +536 -0
