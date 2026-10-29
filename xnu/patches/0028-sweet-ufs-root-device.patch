@@ -301,6 +301,7 @@ new file mode 100644
 +		 * Convert to device logical block size (UFS_BLOCK, 4096 bytes). */
 +		su.first_block = first * 512 / UFS_BLOCK;
 +		su.nblocks = (last - first + 1) * 512 / UFS_BLOCK;
++               printf("SWEET UFS DEBUG: raw first=0x%llx, converted first_block=0x%llx, nblocks=0x%llx\n", first, su.first_block, su.nblocks);
 +		return 0;
 +	}
 +	printf("SWEET UFS: no GPT partition named \"%s\"\n", want);
